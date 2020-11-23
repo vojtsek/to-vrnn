@@ -17,7 +17,7 @@ class ZSemanticEvaluator(Evaluator):
         self.fn_test = fn_test
 
     def _label(self, tpe):
-        tpe = tpe.split('-')[0]
+        # tpe = tpe.split('-')[0]
  #       if tpe.startswith('general'):
 #            tpe = 'goodbye'
         return tpe
@@ -48,7 +48,7 @@ class ZSemanticEvaluator(Evaluator):
                 t_tpe = self._label(t_tpe)
                 if t_tpe in  ['unk', '']:
                     continue
-                print(t_tpe, len(list(r)))
+                # print(t_tpe, len(list(r)))
                 classes.append(t_tpe)
                 t_counter = Counter()
                 for record in records:
@@ -59,7 +59,7 @@ class ZSemanticEvaluator(Evaluator):
                     y.append(t_tpe)
                     all_y_classes.update([t_tpe])
                     t_counter.update([str(i) for i in record.prior_z_vector])
-                print(t_counter.most_common(5))
+                # print(t_counter.most_common(5))
             dt_clf.fit(X, y)
             rf_clf.fit(X, y)
             X_test, y_test = [], []
