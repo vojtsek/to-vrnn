@@ -17,7 +17,7 @@ class ZSemanticEvaluator(Evaluator):
         self.fn_test = fn_test
 
     def _label(self, tpe):
-        # tpe = tpe.split('-')[0]
+        #tpe = tpe.split('-')[0]
  #       if tpe.startswith('general'):
 #            tpe = 'goodbye'
         return tpe
