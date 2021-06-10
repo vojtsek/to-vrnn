@@ -117,7 +117,7 @@ def enchance_reader_with_api(data_reader, domain):
 def should_include_result(system, db_result, domain):
     system = ' '.join(system).lower()
     if domain == 'camrest':
-        return any(['there are {n}' in system for n in ['no', '<num>', 'two', 'three', 'four', 'five']]) or\
+        return any(['there are {n}' in system for n in ['no', '<num>', 'two', 'three', 'four', 'five', 'several']]) or\
             'there is not' in system or \
             any([res['name'] in system for res in db_result]) or \
             '<name>' in system

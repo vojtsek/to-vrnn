@@ -26,7 +26,7 @@ teacher_forcing_prob: 0.3
 z_teacher_forcing_prob: 0.3
 kl_to_ce: 1
 user_number_z_vectors: 1
-system_number_z_vectors: 5
+system_number_z_vectors: 10
 begin_kl_opt_epoch: 1
 stop_opt_z: 20
 prior_module_recurrent: false

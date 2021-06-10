@@ -20,23 +20,25 @@ class SuccessEvaluator(Evaluator):
         slot_map = dict()
         TurnRecord.parse(fn, self.records, slot_map, role, self.onto)
 
-        fn = tp = fp = 0
+        fn = tp = fp = tn = 0
         correct = total = 0
         for record in self.records:
             if record.hyp_query is None and record.gt_query is not None:
                 fn += 1
-            if record.hyp_query is not None and record.gt_query is None:
+            elif record.hyp_query is not None and record.gt_query is None:
                 fp += 1
-            if record.hyp_query is not None and record.gt_query is not None:
+            elif record.hyp_query is not None and record.gt_query is not None:
                 total += 1
                 tp += 1
                 hyp = sorted(record.hyp_query)
                 gt = sorted(record.gt_query)
                 correct += int(all([t1 == t2 for t1, t2 in zip(hyp, gt)]))
+            else:
+                tn += 1
         precision = tp / (tp + fp)
         recall = tp / (tp + fn)
         f1 = 2 * precision * recall / (precision + recall)
         acc = correct / total
-        print(f'P: {precision}\tR: {recall}\tF1: {f1}')
+        print(f'P: {precision}\tR: {recall}\tF1: {f1}\tAcc: {(tp+tn)/(tp+fp+fn+tn)}')
         print(f'Acc: {acc}')
 
