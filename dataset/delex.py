@@ -52,6 +52,8 @@ class Delexicalizer:
                 if attribute in ['area', 'food', 'pricerange']:
                     continue
                 val = str(val).lower()
+                if len(val.strip()) <= 0:
+                    continue
                 if val in utt:
                     self.found_tags.append(self._make_tag(attribute))
                     utt = utt.replace(val, self._make_tag(attribute))

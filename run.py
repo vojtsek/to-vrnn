@@ -96,6 +96,7 @@ def main(flags, config, config_path):
     if not os.path.isdir(output_dir):
         os.makedirs(output_dir)
     shutil.copy(config_path, os.path.join(output_dir, 'conf.yaml'))
+    wandb.log({'output_dir': output_dir})
 #    repo = Repo(os.path.dirname(sys.argv[0]))
 #    with open(os.path.join(output_dir, 'gitcommit.txt'), 'wt') as fd:q
 #        print(f'{repo.head.commit}@{repo.active_branch}', file=fd)
