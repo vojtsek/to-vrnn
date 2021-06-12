@@ -37,7 +37,7 @@ class TurnRecord:
         sys_nlu = [action for action in sys_nlu if 'booking' not in action.lower()]
         self.gt_query = gt_query
         self.hyp_query = hyp_query
-        # self.turn_type = sys_nlu[0] if len(sys_nlu) > 0 else 'unk'
+        self.turn_type = sys_nlu[0].split('-')[0] if len(sys_nlu) > 0 else 'unk'
 
     def __str__(self):
         return f'Turn {self.turn_number}, prior {self.prior_z_vector}, posterior {self.posterior_z_vector}'

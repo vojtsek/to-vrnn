@@ -7,4 +7,5 @@ if __name__ == '__main__':
     role = sys.argv[2]
     TurnRecord.parse(fn, records, {}, role)
     for rec in records:
-        print([r[1] for r in rec.prior_z_vector])
+        print(rec.turn_type)
+        #print([r[1] for r in rec.prior_z_vector])
