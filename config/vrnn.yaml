@@ -35,8 +35,8 @@ bidirectional_encoder: true
 use_db_api: true
 #use_copynet: true
 #use_attention: true
-use_copynet: true
-use_attention: true
+use_copynet: false
+use_attention: false
 with_bpr: false
 with_bow_loss: false
 fake_prior: false
