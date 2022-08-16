@@ -57,7 +57,7 @@ class VRNN(pl.LightningModule):
         system_dials = system_dials[batch_sort_perm].transpose(1, 0)
         system_lens = system_lens[batch_sort_perm].transpose(1, 0)
         db_res = db_res[batch_sort_perm].transpose(1, 0)
-        dial_lens = dial_lens[batch_sort_perm]
+        dial_lens = dial_lens[batch_sort_perm].cpu()
 
         user_dials_data, batch_sizes, sorted_indices, unsorted_indices =\
             pack_padded_sequence(user_dials, dial_lens, enforce_sorted=False)
@@ -186,9 +186,9 @@ class VRNN(pl.LightningModule):
             batch_lens = output_lens[i, :batch_size]
             sort_perm = torch.LongTensor(list(reversed(np.argsort(batch_lens.cpu().numpy())))).to(self.config['device'])
             output_serialized, lens1, sorted_indices, unsorted_indices = \
-                pack_padded_sequence(uo[:, sort_perm, :], batch_lens[sort_perm], enforce_sorted=True)
+                pack_padded_sequence(uo[:, sort_perm, :], batch_lens[sort_perm].cpu(), enforce_sorted=True)
             reference_serialized, lens2, sorted_indices, unsorted_indices = \
-                pack_padded_sequence(ud_reference[:, sort_perm], batch_lens[sort_perm], enforce_sorted=True)
+                pack_padded_sequence(ud_reference[:, sort_perm], batch_lens[sort_perm].cpu(), enforce_sorted=True)
                 # print(torch.argmax(output_serialized, dim=-1))
                 # print(reference_serialized)
                 # print(batch_size)
@@ -210,7 +210,7 @@ class VRNN(pl.LightningModule):
             batch_lens = output_lens[i, :uo.shape[1]]
             # serialize references at turn i w.r.t respective turn lens across batch
             reference_serialized, lens, sorted_indices, unsorted_indices = \
-                pack_padded_sequence(ud_reference, batch_lens, enforce_sorted=False)
+                pack_padded_sequence(ud_reference, batch_lens.cpu(), enforce_sorted=False)
 
             off = 0
             # go through each turn in batch
@@ -227,7 +227,7 @@ class VRNN(pl.LightningModule):
 
     def _compute_vae_kl_loss(self, q_zs, dial_lens):
         q_z, lens, sorted_indices, unsorted_indices = \
-            pack_padded_sequence(q_zs, dial_lens, enforce_sorted=False)
+            pack_padded_sequence(q_zs, dial_lens.cpu(), enforce_sorted=False)
 
         mu = q_z[..., :int(q_z.shape[-1] / 2)]
         logvar = q_z[..., int(q_z.shape[-1] / 2):]
@@ -236,9 +236,9 @@ class VRNN(pl.LightningModule):
 
     def _compute_discrete_vae_kl_loss(self, q_zs, p_zs, dial_lens):
         q_z, lens, sorted_indices, unsorted_indices = \
-            pack_padded_sequence(q_zs, dial_lens, enforce_sorted=True)
+            pack_padded_sequence(q_zs, dial_lens.cpu(), enforce_sorted=True)
         p_z, lens, sorted_indices, unsorted_indices = \
-            pack_padded_sequence(p_zs, dial_lens, enforce_sorted=True)
+            pack_padded_sequence(p_zs, dial_lens.cpu(), enforce_sorted=True)
 
         # todo: has to be regularized w.r.t. variable batch sizes
         offset = 0

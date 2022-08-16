@@ -53,6 +53,25 @@ def _parse_from_arg(arg):
     return val
 
 
+def write_data(output_dir, prefix, dataset):
+    with open(os.path.join(output_dir, f'{prefix}.usr'), 'wt') as usr_fd, \
+        open(os.path.join(output_dir, f'{prefix}.sys'), 'wt') as sys_fd:
+        last_sys = None
+        last_usr = None
+        for d, dial in enumerate(dataset):
+            for turn in dial.turns:
+                sys = ' '.join(turn.system)
+                user = ' '.join(turn.user)
+                if last_usr is not None:
+                    print(last_usr + ' <BOS> ' + last_sys + ' <BOS> ' + user, file=usr_fd)
+                else:
+                    print(user, file=usr_fd)
+
+                print(sys, file=sys_fd)
+                last_usr = user
+                last_sys = sys
+
+
 def main(flags, config, config_path):
     wandb.init(project='vrnn')
     for fl in vars(flags):
@@ -124,6 +143,10 @@ def main(flags, config, config_path):
     train_loader = TorchDataLoader(train_dataset, batch_size=config['batch_size'], shuffle=True)
     valid_loader = TorchDataLoader(valid_dataset, batch_size=config['batch_size'], shuffle=True)
     test_loader = TorchDataLoader(test_dataset, batch_size=config['batch_size'], shuffle=True)
+    #write_data(output_dir, 'train', readers['train'].dialogues)
+    #write_data(output_dir, 'dev', readers['valid'].dialogues)
+    #write_data(output_dir, 'test', readers['test'].dialogues)
+
 
     config['system_z_total_size'] = config['system_z_logits_dim'] * config['system_number_z_vectors']
     config['user_z_total_size'] = config['user_z_logits_dim'] * config['user_number_z_vectors']
@@ -135,6 +158,7 @@ def main(flags, config, config_path):
         model.load_state_dict(checkpoint['state_dict'])
     else:
         model = VRNN(config, embeddings, train_loader, valid_loader, test_loader)
+    model = model.to(config['device'])
     wandb.config.update(config)
     if flags.train_more or flags.model_path is None:
         config['retraining'] = flags.train_more

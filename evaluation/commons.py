@@ -37,8 +37,9 @@ class TurnRecord:
         sys_nlu = [action for action in sys_nlu if 'booking' not in action.lower()]
         self.gt_query = gt_query
         self.hyp_query = hyp_query
+        sys_nlu = turn_type
         self.turn_type = sys_nlu[0].split('-')[0] if len(sys_nlu) > 0 else 'unk'
-        self.turn_type = sys_nlu[0] if len(sys_nlu) > 0 else 'unk'
+        # self.turn_type = sys_nlu[0] if len(sys_nlu) > 0 else 'unk'
 
     def __str__(self):
         return f'Turn {self.turn_number}, prior {self.prior_z_vector}, posterior {self.posterior_z_vector}'
@@ -64,6 +65,8 @@ class TurnRecord:
             current_nlu_line = ''
             for line in in_fd:
                 if '---' in line:
+                    if current_turn_number % 2 == 0:
+                        continue
                     records.append(TurnRecord(current_turn_number,
                                               '-'.join(current_turn_type),
                                               prior_z_vector,
@@ -93,11 +96,12 @@ class TurnRecord:
                 #     posterior_z_vector = [int(n) for n in line[2:]]
 
                 if role == 'system':
-                    if 'SYS HYP' in line:
+                    sys_nlu = []
+                    if 'USER HYP' in line:
                         hyp_utterance = strip_utterance_special_tokens(':'.join(line.split(':')[1:]))
                         if 'query' in line:
                             hyp_query = parse_query(strip_utterance_special_tokens(':'.join(line.split(':')[1:])), onto)
-                    if 'SYS GT' in line:
+                    if 'USER GT' in line:
                         if 'query' in line:
                             gt_query = parse_query(strip_utterance_special_tokens(':'.join(line.split(':')[1:])), onto)
                             current_turn_type.append('QUERY')
@@ -118,11 +122,12 @@ class TurnRecord:
                             current_turn_type.append('OTHER')
 
                         gt_utterance = strip_utterance_special_tokens(':'.join(line.split(':')[1:]))
-                    if 'SYS NLU' in line:
+                    if 'NLU' in line:
                         sys_nlu = strip_utterance_special_tokens(':'.join(line.split(':')[1:])).split()
                 else:
                     if 'Turn' in line:
                         relative_line = 0
+                        turn_no = int(line.split()[-1])
                     if relative_line == 2:
                         current_nlu_line = line
                     if 'user Z' in line:

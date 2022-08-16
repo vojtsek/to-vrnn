@@ -86,16 +86,19 @@ def main(flags, config, config_path):
                                  db_file=os.path.join(config['data_dir'], 'db.json'),
                                  train=1, valid=0)
         enchance_reader_with_api(data_reader, config['domain'])
-        for d in data_reader.dialogues:
-            for t in d.turns:
-                print(t.user, t.system)
+#        for d in data_reader.dialogues:
+#            for t in d.turns:
+#                print(t.user, t.system)
 
 def enchance_reader_with_api(data_reader, domain):
     enhanced = []
+    total_turns = 0
+    enhanced_turns = 0
     for dial in data_reader.dialogues:
         new_dial = deepcopy(dial)
         new_i = 0
         for i, turn in enumerate(dial.turns):
+            total_turns += 1
             if should_include_result(turn.system, turn.db_result, domain):
                 db_turn = create_db_turn(turn, domain)
                 if db_turn.system is None:
@@ -106,11 +109,13 @@ def enchance_reader_with_api(data_reader, domain):
                 new_dial.turns[new_i].system = db_turn.user
                 new_i += 1
                 new_dial.turns.insert(new_i, new_turn)
+                enhanced_turns += 1
             new_i += 1
         enhanced.append(new_dial)
         data_reader.max_dial_len = max(data_reader.max_dial_len, len(new_dial.turns) * 2)
         data_reader.max_turn_len = max(data_reader.max_turn_len, max([max(len(t.user), len(t.system)) for t in new_dial.turns]))
     data_reader._dialogues = enhanced
+    print(f'Enhanced {enhanced_turns} turns, which is {enhanced_turns/total_turns}% of total turns.')
     return enhanced
 
 
@@ -124,16 +129,15 @@ def should_include_result(system, db_result, domain):
     if domain == 'smd':
         return True
     if domain == 'woz-hotel':
-        return True
         def _get_values(res):
             for key, val in res.items():
                 if isinstance(val, list):
                     val = ','.join([str(x) for x in val])
                 val = str(val).lower()
-                yield val
+                if key not in ['parking', 'internet', 'type']:
+                    yield val
 
-            return any([val.lower() in system for res in db_result for val in _get_values(res)]) or \
-                '<name>' in system
+        return any([val.lower() in system for res in db_result for val in _get_values(res)])
 
 
 def create_db_turn(turn, domain):
