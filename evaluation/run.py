@@ -24,7 +24,7 @@ def main(args):
         evaluators.append(PPLEvaluator(fn))
     if 'success' in metrics:
         evaluators.append(SuccessEvaluator(fn, args.onto))
-    if 'ent' in metrics:
+    if 'emr' in metrics:
         with open(args.db_file, 'rt') as inf:
             db = json.load(inf)
         evaluators.append(EntityEvaluator(fn, db))
