@@ -50,7 +50,7 @@ def embed_oh(vec, size, device):
     oh = torch.zeros(*size).to(device)
 
     oh.scatter_(2, vec, src)
-    return oh
+    return oh.to(device)
 
 def zero_hidden(sizes):
     return torch.randn(*sizes)
@@ -74,7 +74,7 @@ def gumbel_softmax_sample(logits, temperature, hard=False, device=torch.device('
     y_hard = y_hard.view(*shape)
     if hard:
         y = (y_hard - y).detach() + y
-    return y
+    return y.to(device)
 
 
 def normal_sample(mu, logvar, device):

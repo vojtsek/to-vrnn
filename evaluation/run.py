@@ -1,7 +1,8 @@
 import argparse
+import json
 import os
 
-from . import BleuEvaluator, ZSemanticEvaluator, ZInfoEvaluator, PPLEvaluator
+from . import BleuEvaluator, ZSemanticEvaluator, ZInfoEvaluator, PPLEvaluator, EntityEvaluator, ClfEvaluator, SuccessEvaluator
 
 
 def main(args):
@@ -15,10 +16,18 @@ def main(args):
         evaluators.append(BleuEvaluator(fn))
     if 'z_semantics' in metrics:
         evaluators.append(ZSemanticEvaluator(fn, args.test_fn))
+    if 'clf' in metrics:
+        evaluators.append(ClfEvaluator(fn, args.test_fn))
     if 'z_info' in metrics:
         evaluators.append(ZInfoEvaluator(fn))
     if 'ppl' in metrics:
         evaluators.append(PPLEvaluator(fn))
+    if 'success' in metrics:
+        evaluators.append(SuccessEvaluator(fn, args.onto))
+    if 'emr' in metrics:
+        with open(args.db_file, 'rt') as inf:
+            db = json.load(inf)
+        evaluators.append(EntityEvaluator(fn, db))
 
     for evaluator in evaluators:
         evaluator.eval_from_dir(args.work_dir, 'system')
@@ -30,5 +39,7 @@ if __name__ == '__main__':
     parser.add_argument('--work_dir', required=True, type=str)
     parser.add_argument('--fn', required=False, type=str, default=None)
     parser.add_argument('--test_fn', required=False, type=str)
+    parser.add_argument('--db_file', required=False, type=str)
+    parser.add_argument('--onto', required=False, type=str)
     args = parser.parse_args()
     main(args)

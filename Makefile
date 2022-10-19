@@ -15,7 +15,7 @@ camrest:
 	sed -i '/^#/d' $(DATA_DIR)/camrest/otgy.json
 	python scripts/split_json_data.py --data_fn $(DATA_DIR)/camrest/data.json --target_dir $(DATA_DIR)/camrest
 
-woz:
+multiwoz:
 	mkdir -p $(DATA_DIR)/multiwoz
 	wget "https://www.repository.cam.ac.uk/bitstream/handle/1810/294507/MULTIWOZ2.1.zip?sequence=1&isAllowed=y" -O $(DATA_DIR)/multiwoz/raw.zip
 	cd $(DATA_DIR)/multiwoz && unzip raw.zip

@@ -48,7 +48,6 @@ class ZSemanticEvaluator(Evaluator):
                 t_tpe = self._label(t_tpe)
                 if t_tpe in  ['unk', '']:
                     continue
-                # print(t_tpe, len(list(r)))
                 classes.append(t_tpe)
                 t_counter = Counter()
                 for record in records:
@@ -84,6 +83,7 @@ class ZSemanticEvaluator(Evaluator):
             y_hat = dt_clf.predict(X_test)
             acc_test = accuracy_score(y_test, y_hat)
 
+            print('LEN', len(X), len(X_test))
             print('DT accuracy:', acc, acc_test)
             print('majority:', accuracy_score(y_test, [most_common] * len(y_test)))
             fig = plt.gcf()

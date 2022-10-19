@@ -64,21 +64,30 @@ class ZNet(torch.nn.Module):
 
         if self.z_type == 'gumbel':
             q_z = F.softmax(z_posterior_logits / self.config['gumbel_softmax_tmp'], dim=-1)
-            q_z_samples =\
-                gumbel_softmax_sample(z_posterior_logits,
-                                      self.config['gumbel_softmax_tmp'],
-                                      hard=self.config['gumbel_hard'],
-                                      device=self.config['device'])
+            if not self.training:
+                q_z_samples = F.softmax(z_posterior_logits, dim=-1)
+            else:
+                q_z_samples =\
+                    gumbel_softmax_sample(z_posterior_logits,
+                                          self.config['gumbel_softmax_tmp'],
+                                          hard=self.config['gumbel_hard'] or (not self.training),
+                                          device=self.config['device'])
         else:
             mu = z_posterior_logits[:, :self.z_logits_dim]
             logvar = z_posterior_logits[:, self.z_logits_dim:]
             q_z = z_posterior_logits
-            q_z_samples = normal_sample(mu, logvar, device=self.config['device'])
-        p_z_samples =\
-            gumbel_softmax_sample(z_prior_logits,
-                                  self.config['gumbel_softmax_tmp'],
-                                  hard=self.config['gumbel_hard'],
-                                  device=self.config['device'])
+            if not self.training:
+                q_z_samples = mu
+            else:
+                q_z_samples = normal_sample(mu, logvar, device=self.config['device'])
+        if  not self.training:
+            p_z_samples = F.softmax(z_prior_logits, dim=-1)
+        else:
+            p_z_samples =\
+                gumbel_softmax_sample(z_prior_logits,
+                                      self.config['gumbel_softmax_tmp'],
+                                      hard=self.config['gumbel_hard'],
+                                      device=self.config['device'])
         # z_posterior_projection = self.posterior_net2(q_z_samples)
 
         if self.fake:
